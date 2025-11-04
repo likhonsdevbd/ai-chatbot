@@ -1,4 +1,4 @@
-import { streamText, convertToModelMessages, UIMessage } from 'ai';
+import { streamText, convertToCoreMessages, UIMessage } from 'ai';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         provider: 'openai',
         ...huggingfaceProvider,
       } as any,
-      messages: convertToModelMessages(messages),
+      messages: convertToCoreMessages(messages),
       system: webSearch 
         ? 'You are a helpful assistant with web search capabilities. When answering questions, you can search the web and provide citations.'
         : 'You are a helpful AI assistant. Provide clear, accurate, and helpful responses.',
