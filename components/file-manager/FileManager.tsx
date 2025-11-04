@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { FileExplorer, type FileNode } from './FileExplorer';
 import { CodeEditor } from './CodeEditor';
 import { WebContainerPreview, type WebContainerFile } from './WebContainerPreview';
@@ -18,6 +18,17 @@ import {
   Smartphone,
   Monitor
 } from 'lucide-react';
+import { 
+  withLazyLoading, 
+  usePerformanceMonitor, 
+  VirtualList,
+  ErrorBoundary 
+} from '../PerformanceOptimizations';
+import { 
+  DevicePerformanceDetector, 
+  PERFORMANCE_CONFIG,
+  PerformanceUtils
+} from '../../lib/performance';
 
 interface FileManagerProps {
   onFilesChange?: (files: FileNode[]) => void;
@@ -309,6 +320,44 @@ export const FileManager: React.FC<FileManagerProps> = ({
   const [selectedFile, setSelectedFile] = useState<FileNode | undefined>();
   const [layout, setLayout] = useState<LayoutMode>('horizontal');
   const [showSettings, setShowSettings] = useState(false);
+
+  // Performance monitoring and device detection
+  const performanceMetrics = usePerformanceMonitor();
+  const deviceCapabilities = useMemo(() => {
+    // Only detect device capabilities on the client side
+    if (typeof window === 'undefined') {
+      return {
+        isLowEndDevice: true, // Conservative default for SSR
+        metrics: {},
+        recommendations: {
+          enableVirtualization: true,
+          reduceAnimations: true,
+          simplifyUI: true,
+          aggressiveCaching: true,
+          lazyLoadComponents: true,
+        },
+      };
+    }
+    return DevicePerformanceDetector.getInstance().detectDeviceCapabilities();
+  }, []);
+
+  // Auto-adjust settings based on device capabilities
+  const effectiveOptimizeForLowEnd = optimizeForLowEnd || deviceCapabilities.isLowEndDevice;
+  const shouldUseVirtualization = deviceCapabilities.recommendations.enableVirtualization;
+  const shouldReduceAnimations = deviceCapabilities.recommendations.reduceAnimations;
+
+  // Performance-optimized callbacks
+  const debouncedOnFilesChange = useMemo(
+    () => onFilesChange ? PerformanceUtils.debounce(onFilesChange, PERFORMANCE_CONFIG.TIMINGS.AUTO_SAVE_DEBOUNCE) : undefined,
+    [onFilesChange]
+  );
+
+  // Monitor memory usage and performance
+  useEffect(() => {
+    if (effectiveOptimizeForLowEnd && typeof window !== 'undefined') {
+      DevicePerformanceDetector.getInstance().startPerformanceMonitoring();
+    }
+  }, [effectiveOptimizeForLowEnd]);
   const [autoSave, setAutoSave] = useState(true);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   

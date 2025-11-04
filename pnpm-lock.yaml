@@ -14,6 +14,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.39.0
         version: 2.78.0
+      '@webcontainer/api':
+        specifier: ^1.6.1
+        version: 1.6.1
       ai:
         specifier: ^4.1.0
         version: 4.3.19(react@18.3.1)(zod@3.25.76)
@@ -973,6 +976,9 @@ packages:
     resolution: {integrity: sha512-lrW200hZdbfRtztbygyaq/6jP6AKE8qQN2KvPcJ+x7wiD038YtnYtZ82IMNJ69GJibV7bwL3y9FgK+5w/pYt6g==}
     cpu: [x64]
     os: [win32]
+
+  '@webcontainer/api@1.6.1':
+    resolution: {integrity: sha512-2RS2KiIw32BY1Icf6M1DvqSmcon9XICZCDgS29QJb2NmF12ZY2V5Ia+949hMKB3Wno+P/Y8W+sPP59PZeXSELg==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -4053,6 +4059,8 @@ snapshots:
 
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
+
+  '@webcontainer/api@1.6.1': {}
 
   acorn-jsx@5.3.2(acorn@8.15.0):
     dependencies:

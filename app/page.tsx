@@ -8,7 +8,16 @@ import { ModelPicker } from '@/components/ModelPicker';
 import { Message } from '@/components/Message';
 import { FileUpload } from '@/components/FileUpload';
 import { useSmithery } from '@/hooks/useSmithery';
-import RapidPrototypeLayout from '@/components/RapidPrototypeLayout';
+import { withLazyLoading, ErrorBoundary } from '@/components/PerformanceOptimizations';
+
+// Lazy load RapidPrototypeLayout for better performance
+const RapidPrototypeLayout = withLazyLoading(
+  () => import('@/components/RapidPrototypeLayout'),
+  <div className="flex items-center justify-center h-64">
+    <Loader2 className="h-8 w-8 animate-spin" />
+    <span className="ml-2">Loading workspace...</span>
+  </div>
+);
 
 interface FileAttachment {
   file: File;
@@ -154,7 +163,8 @@ export default function ChatPage() {
   };
 
   return (
-    <RapidPrototypeLayout>
+    <ErrorBoundary>
+      <RapidPrototypeLayout>
       <div className="flex h-full bg-white dark:bg-gray-900">
         {/* Sidebar - Conversation History & Projects */}
         <div className={`
@@ -453,5 +463,6 @@ export default function ChatPage() {
       )}
     </div>
     </RapidPrototypeLayout>
+    </ErrorBoundary>
   );
 }
