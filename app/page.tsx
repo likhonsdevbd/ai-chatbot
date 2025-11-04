@@ -8,6 +8,7 @@ import { ModelPicker } from '@/components/ModelPicker';
 import { Message } from '@/components/Message';
 import { FileUpload } from '@/components/FileUpload';
 import { useSmithery } from '@/hooks/useSmithery';
+import RapidPrototypeLayout from '@/components/RapidPrototypeLayout';
 
 interface FileAttachment {
   file: File;
@@ -153,16 +154,17 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen bg-white dark:bg-gray-900">
-      {/* Sidebar - Conversation History & Projects */}
-      <div className={`
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        md:translate-x-0 
-        fixed md:relative z-20 
-        w-64 h-full bg-gray-50 dark:bg-gray-800 
-        border-r border-gray-200 dark:border-gray-700 
-        transition-transform duration-300 ease-in-out
-      `}>
+    <RapidPrototypeLayout>
+      <div className="flex h-full bg-white dark:bg-gray-900">
+        {/* Sidebar - Conversation History & Projects */}
+        <div className={`
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          md:translate-x-0 
+          fixed md:relative z-20 
+          w-64 h-full bg-gray-50 dark:bg-gray-800 
+          border-r border-gray-200 dark:border-gray-700 
+          transition-transform duration-300 ease-in-out
+        `}>
         {/* Smithery Project Selector */}
         {smithery.isAvailable && (
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -450,5 +452,6 @@ export default function ChatPage() {
         />
       )}
     </div>
+    </RapidPrototypeLayout>
   );
 }
