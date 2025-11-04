@@ -10,42 +10,6 @@ const nextConfig = {
     minimumCacheTTL: 60,
   },
   
-  // Webpack optimizations for low-budget devices
-  webpack: (config, { dev, isServer }) => {
-    if (!dev && !isServer) {
-      // Split chunks for better caching
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-            priority: 10,
-          },
-          common: {
-            name: 'common',
-            minChunks: 2,
-            chunks: 'all',
-            priority: 5,
-            reuseExistingChunk: true,
-          },
-          fileManager: {
-            test: /[\\/]components[\\/]file-manager[\\/]/,
-            name: 'file-manager',
-            chunks: 'all',
-            priority: 15,
-          },
-        },
-      };
-    }
-    
-    return config;
-  },
-  
-  // Output optimization
-  output: 'standalone',
-  
   // Production optimizations
   productionBrowserSourceMaps: false,
   
@@ -64,5 +28,7 @@ const nextConfig = {
     ];
   },
 };
+
+module.exports = nextConfig;
 
 module.exports = nextConfig;
