@@ -690,7 +690,7 @@ export const FileManager: React.FC<FileManagerProps> = ({
         {(layout === 'horizontal' || layout === 'editor-only') && (
           <div className="min-h-0">
             <CodeEditor
-              file={selectedFile && selectedFile.type === 'file' && selectedFile.content !== undefined ? {
+              file={selectedFile && selectedFile.type === 'file' && typeof selectedFile.content === 'string' ? {
                 id: selectedFile.id,
                 name: selectedFile.name,
                 content: selectedFile.content,

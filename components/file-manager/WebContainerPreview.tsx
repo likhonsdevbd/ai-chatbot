@@ -26,6 +26,17 @@ export interface WebContainerFile {
   } | WebContainerFile;
 }
 
+// Type guard to check if an object is a file entry
+function isFileEntry(obj: any): obj is { file: { contents: string } } {
+  return obj && 
+         typeof obj === 'object' && 
+         'file' in obj && 
+         obj.file && 
+         typeof obj.file === 'object' &&
+         'contents' in obj.file &&
+         typeof obj.file.contents === 'string';
+}
+
 interface WebContainerPreviewProps {
   files: WebContainerFile;
   onFilesChange: (files: WebContainerFile) => void;
@@ -175,7 +186,7 @@ export const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
   // Simulate WebContainer for demo (in real implementation, this would use @webcontainer/api)
   const createPreviewContent = useCallback(() => {
     const indexFile = files['index.html'];
-    if (indexFile && 'file' in indexFile) {
+    if (indexFile && isFileEntry(indexFile)) {
       const blob = new Blob([indexFile.file.contents], { type: 'text/html' });
       return URL.createObjectURL(blob);
     }
