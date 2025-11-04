@@ -32,7 +32,7 @@ export default function ChatPage() {
     autoSync: true 
   });
 
-  const { messages, sendMessage, status, error, regenerate } = useChat({
+  const { messages, append, status, error, reload } = useChat({
     api: '/api/chat',
     onFinish: async (message) => {
       // Sync with Smithery if available
@@ -79,10 +79,11 @@ export default function ChatPage() {
       : undefined;
 
     // Send message
-    await sendMessage(
+    await append(
       { 
-        text: input || 'Sent with attachments',
-        files
+        role: 'user',
+        content: input || 'Sent with attachments',
+        // files
       },
       {
         body: {
@@ -369,7 +370,7 @@ export default function ChatPage() {
                   <div className="text-red-700 dark:text-red-300 font-semibold mb-1">Error</div>
                   <div className="text-red-600 dark:text-red-400 text-sm">{error.message}</div>
                   <button
-                    onClick={() => regenerate()}
+                    onClick={() => reload()}
                     className="mt-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 text-sm underline"
                   >
                     Try again

@@ -50,11 +50,8 @@ export async function POST(req: Request) {
       maxTokens: 4096,
     });
 
-    // Return streaming response with support for reasoning and sources
-    return result.toUIMessageStreamResponse({
-      sendSources: webSearch,
-      sendReasoning: true,
-    });
+    // Return streaming response
+    return result.toDataStreamResponse();
 
   } catch (error: any) {
     console.error('Chat API Error:', error);
