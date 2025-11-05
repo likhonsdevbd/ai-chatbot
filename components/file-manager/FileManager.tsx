@@ -338,24 +338,24 @@ export const FileManager: React.FC<FileManagerProps> = ({
         },
       };
     }
-    return DevicePerformanceDetector.getInstance().detectDeviceCapabilities();
+    return DevicePerformanceDetector.detect();
   }, []);
 
   // Auto-adjust settings based on device capabilities
-  const effectiveOptimizeForLowEnd = optimizeForLowEnd || deviceCapabilities.isLowEndDevice;
-  const shouldUseVirtualization = deviceCapabilities.recommendations.enableVirtualization;
-  const shouldReduceAnimations = deviceCapabilities.recommendations.reduceAnimations;
+  const effectiveOptimizeForLowEnd = optimizeForLowEnd || ('isLowEnd' in deviceCapabilities && deviceCapabilities.isLowEnd);
+  const shouldUseVirtualization = 'recommendations' in deviceCapabilities && deviceCapabilities.recommendations.enableVirtualization;
+  const shouldReduceAnimations = 'recommendations' in deviceCapabilities && deviceCapabilities.recommendations.reduceAnimations;
 
   // Performance-optimized callbacks
   const debouncedOnFilesChange = useMemo(
-    () => onFilesChange ? PerformanceUtils.debounce(onFilesChange, PERFORMANCE_CONFIG.TIMINGS.AUTO_SAVE_DEBOUNCE) : undefined,
-    [onFilesChange]
+    () => onFilesChange ? PerformanceUtils.debounce(onFilesChange, effectiveOptimizeForLowEnd ? PERFORMANCE_CONFIG.lowEnd.debounce : PERFORMANCE_CONFIG.highEnd.debounce) : undefined,
+    [onFilesChange, effectiveOptimizeForLowEnd]
   );
 
   // Monitor memory usage and performance
   useEffect(() => {
     if (effectiveOptimizeForLowEnd && typeof window !== 'undefined') {
-      DevicePerformanceDetector.getInstance().startPerformanceMonitoring();
+      // Add performance monitoring logic here if needed
     }
   }, [effectiveOptimizeForLowEnd]);
   const [autoSave, setAutoSave] = useState(true);

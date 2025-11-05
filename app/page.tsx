@@ -36,6 +36,7 @@ export default function ChatPage() {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   // Smithery integration
   const smithery = useSmithery({ 
@@ -77,6 +78,48 @@ export default function ChatPage() {
       textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
     }
   }, [input]);
+
+  // Focus trapping for sidebar
+  useEffect(() => {
+    const sidebar = sidebarRef.current;
+    if (sidebarOpen && sidebar) {
+      const focusableElements = sidebar.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      const previouslyFocusedElement = document.activeElement as HTMLElement;
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          setSidebarOpen(false);
+          return;
+        }
+
+        if (e.key === 'Tab') {
+          if (e.shiftKey) {
+            if (document.activeElement === firstElement) {
+              e.preventDefault();
+              lastElement.focus();
+            }
+          } else {
+            if (document.activeElement === lastElement) {
+              e.preventDefault();
+              firstElement.focus();
+            }
+          }
+        }
+      };
+
+      document.addEventListener('keydown', handleKeyDown);
+      firstElement?.focus();
+
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+        previouslyFocusedElement?.focus();
+      };
+    }
+  }, [sidebarOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,18 +210,26 @@ export default function ChatPage() {
       <RapidPrototypeLayout>
       <div className="flex h-full bg-white dark:bg-gray-900">
         {/* Sidebar - Conversation History & Projects */}
-        <div className={`
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          md:translate-x-0 
-          fixed md:relative z-20 
-          w-64 h-full bg-gray-50 dark:bg-gray-800 
-          border-r border-gray-200 dark:border-gray-700 
-          transition-transform duration-300 ease-in-out
-        `}>
+        <div
+          ref={sidebarRef}
+          className={`
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+            md:translate-x-0
+            fixed md:relative z-20
+            w-64 h-full bg-gray-50 dark:bg-gray-800
+            border-r border-gray-200 dark:border-gray-700
+            transition-transform duration-300 ease-in-out
+          `}
+          aria-hidden={!sidebarOpen && 'true'}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="sidebar-title"
+        >
         {/* Smithery Project Selector */}
         {smithery.isAvailable && (
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <select
+              aria-label="Select Project"
               value={smithery.currentProject?.id || ''}
               onChange={(e) => handleProjectChange(e.target.value)}
               className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -223,7 +274,7 @@ export default function ChatPage() {
                     {chat.name}
                   </span>
                   {chat.is_favorite && (
-                    <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                    <Star className="w-3 h-3 text-yellow-500 fill-current" aria-label="Favorite chat" />
                   )}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -259,12 +310,13 @@ export default function ChatPage() {
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="md:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+            aria-label="Open sidebar"
           >
             <Menu className="w-5 h-5" />
           </button>
           
           <div className="flex-1 flex items-center justify-center">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+            <h1 id="sidebar-title" className="text-xl font-bold text-gray-900 dark:text-white">
               {smithery.currentChat?.name || 'AI Chatbot'}
             </h1>
           </div>
@@ -281,6 +333,7 @@ export default function ChatPage() {
                 }
               `}
               title="Toggle Chain of Thought reasoning"
+              aria-label="Toggle Chain of Thought reasoning"
             >
               <Zap className="w-4 h-4" />
               <span className="text-sm hidden sm:inline">Reasoning</span>
@@ -296,6 +349,7 @@ export default function ChatPage() {
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }
               `}
+              aria-label="Toggle web search"
             >
               <Globe className="w-4 h-4" />
               <span className="text-sm hidden sm:inline">Search</span>
@@ -424,6 +478,7 @@ export default function ChatPage() {
                   onClick={() => setShowFileUpload(!showFileUpload)}
                   className="absolute right-3 top-3 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   title="Attach files"
+                  aria-label="Attach files"
                 >
                   <Plus className="w-5 h-5" />
                 </button>
@@ -433,6 +488,7 @@ export default function ChatPage() {
                 type="submit"
                 disabled={(!input.trim() && attachments.length === 0) || status === 'streaming' || status === 'submitted'}
                 className="px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center gap-2"
+                aria-label="Send message"
               >
                 {status === 'streaming' || status === 'submitted' ? (
                   <Loader2 className="w-5 h-5 animate-spin" />

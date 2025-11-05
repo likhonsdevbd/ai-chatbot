@@ -91,31 +91,24 @@ describe('Message Component', () => {
   })
 
   it('handles copy functionality', async () => {
-    // Create a fresh mock for this test
-    const mockWriteText = jest.fn(() => Promise.resolve())
-    Object.assign(navigator, {
-      clipboard: {
-        writeText: mockWriteText,
-      },
-    })
-
-    const mockOnCopy = jest.fn()
-    const user = userEvent.setup()
-    
+    const mockOnCopy = jest.fn();
+    const user = userEvent.setup();
+    const mockWriteText = jest.spyOn(navigator.clipboard, 'writeText').mockImplementation(async () => {});
     render(
-      <Message 
-        role="assistant" 
-        parts={[mockTextPart]} 
+      <Message
+        role="assistant"
+        parts={[mockTextPart]}
         onCopy={mockOnCopy}
       />
-    )
-    
-    const copyButton = screen.getByRole('button', { name: /copy/i })
-    await user.click(copyButton)
-    
-    expect(mockWriteText).toHaveBeenCalledWith('Hello, this is a test message!')
-    expect(mockOnCopy).toHaveBeenCalledWith('Hello, this is a test message!')
-  })
+    );
+    const copyButton = screen.getByRole('button', { name: /copy/i });
+    await user.click(copyButton);
+    expect(mockWriteText).toHaveBeenCalledWith(
+      'Hello, this is a test message!'
+    );
+    expect(mockOnCopy).toHaveBeenCalledWith('Hello, this is a test message!');
+    mockWriteText.mockRestore();
+  });
 
   it('renders reasoning part with expand/collapse', async () => {
     const user = userEvent.setup()
